@@ -5,5 +5,8 @@ module.exports = {
   extends: [
     'eslint-config-digitalbazaar',
     'eslint-config-digitalbazaar/vue'
-  ]
+  ],
+  globals: {
+    BarcodeDetector: true
+  }
 };
