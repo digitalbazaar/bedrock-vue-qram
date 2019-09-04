@@ -31,5 +31,8 @@
     "eslint-plugin-vue": "^5.2.2",
     "jsdoc-to-markdown": "^4.0.1",
     "node-fetch": "^2.3.0"
+  },
+  "dependencies": {
+    "qrcode": "^1.4.1"
   }
 }
