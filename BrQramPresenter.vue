@@ -151,7 +151,6 @@ function getBestVersion({blockSize, resistance}) {
 <style lang="scss" scoped>
 
 .br-qram-presenter {
-  border: 1px solid #333;
 }
 
 </style>
