@@ -37,19 +37,36 @@
     </div>
     <div
       v-show="showProgress"
-      ref="blocksMap"
       class="br-qram-progress">
-      <div
-        v-if="!dataReceived"
-        class="column message">
-        <div>Waiting to scan...</div>
+      <div class="blocks">
+        <div
+          v-if="receivedPackets === 0"
+          class="column message">
+          <div>Waiting to scan...</div>
+        </div>
+        <div
+          v-else-if="done"
+          class="column message">
+          <div>Scan complete</div>
+        </div>
+        <div
+          v-for="n in totalBlocks"
+          v-else
+          :key="n"
+          class="block"
+          :class="{missing: !blocks[n - 1], found: blocks[n - 1]}" />
       </div>
-      <div
-        v-for="n in totalBlocks"
-        v-else
-        :key="n"
-        class="block"
-        :class="{missing: !blocks[n - 1], found: blocks[n - 1]}" />
+      <div class="progress-bar">
+        <div
+          class="progress-bar-track"
+          :style="{'flex-grow': progressBarLeft}" />
+        <div
+          class="bg-primary"
+          :style="{'flex-grow': progressBarMiddle}" />
+        <div
+          class="progress-bar-track"
+          :style="{'flex-grow': progressBarRight}" />
+      </div>
     </div>
   </div>
 </template>
@@ -88,9 +105,9 @@ export default {
       scanner: null,
       totalBlocks: 0,
       blocks: {},
-      dataReceived: false,
       videoWidth: 0,
-      videoHeight: 0
+      videoHeight: 0,
+      receivedPackets: 0
     };
   },
   computed: {
@@ -131,6 +148,38 @@ export default {
         'margin-top': `${marginTop}px`,
         'margin-left': `${marginLeft}px`
       };
+    },
+    packetProgress() {
+      const {receivedPackets, done} = this;
+      if(done) {
+        return 1;
+      }
+      // show progress as packets are received
+      let progress = (receivedPackets % 10) / 10;
+      const reverse = (Math.floor(receivedPackets / 10) % 2 === 1);
+      if(reverse) {
+        progress = 1 - progress;
+      }
+      return progress;
+    },
+    progressBarLeft() {
+      if(this.done || this.receivedPackets === 0) {
+        return 0;
+      }
+      return this.packetProgress - 0.1;
+    },
+    progressBarMiddle() {
+      return this.done || this.receivedPackets === 0 ? 1 : 0.1;
+    },
+    progressBarRight() {
+      if(this.done || this.receivedPackets === 0) {
+        return 0;
+      }
+      return 1 - this.packetProgress;
+    },
+    done() {
+      const {receivedPackets, totalBlocks, receivedBlocks} = this;
+      return (receivedPackets > 0 && totalBlocks === receivedBlocks);
     }
   },
   async mounted() {
@@ -201,13 +250,14 @@ export default {
       }
 
       this.scanning = true;
-      this.dataReceived = false;
+      this.receivedPackets = 0;
       const {$refs: {video: source}} = this;
       const start = Date.now();
       const result = await this.scanner.scan({
         source,
         progress: this.progress.bind(this)
       });
+      // TODO: update
       console.log('scan complete', result);
       const {
         blocks,
@@ -215,7 +265,9 @@ export default {
         receivedBlocks,
         totalBlocks
       } = result;
-      this.updateBlockProgress({totalBlocks, blocks});
+      this.updateBlockProgress({
+        totalBlocks, blocks, receivedPackets, receivedBlocks
+      });
       console.log(`Decoded ${receivedBlocks}/${totalBlocks} blocks`);
       const time = ((Date.now() - start) / 1000).toFixed(3);
       const {data} = result;
@@ -229,8 +281,11 @@ export default {
       console.log('progress', event);
       this.updateBlockProgress(event);
     },
-    updateBlockProgress({totalBlocks, blocks}) {
-      this.dataReceived = true;
+    updateBlockProgress({
+      totalBlocks, blocks, receivedPackets, receivedBlocks
+    }) {
+      this.receivedPackets = receivedPackets;
+      this.receivedBlocks = receivedBlocks;
       this.totalBlocks = totalBlocks;
       this.blocks = {};
       for(const key of blocks.keys()) {
@@ -239,7 +294,8 @@ export default {
     },
     cancel() {
       this.scanning = false;
-      this.dataReceived = false;
+      this.receivedPackets = 0;
+      this.receivedBlocks = 0;
       this.totalBlocks = 0;
       this.blocks = {};
       this.scanner.cancel();
@@ -295,34 +351,55 @@ export default {
 }
 
 .br-qram-progress {
-  display: flex;
-  flex-direction: row;
-  min-height: 30px;
-  width: 100%;
   margin: 15px 5px 5px 5px;
   border: 2px solid #333;
   border-radius: 2px;
-  font-size: 16px;
-  color: #333;
 
-  & .message {
+  & > .blocks {
+    display: flex;
+    flex-direction: row;
+    min-height: 30px;
     width: 100%;
-    align-items: center;
-  }
+    font-size: 16px;
+    color: #333;
 
-  & > div.block {
-    border: 1px solid #333;
-  }
-  & > div.block:not(:last-child) {
-    border-right: none;
-  }
-  & > .block.missing {
-    background-color: #aaa;
-    flex-grow: 1;
-  }
-  & > .block.found {
-    background-color: #0f0;
-    flex-grow: 1;
+    & .message {
+      width: 100%;
+      align-items: center;
+      margin-top: 3px;
+    }
+
+    & > div.block {
+      border: 1px solid #333;
+      border-right: none;
+    }
+    & > div.block:first-child {
+      border-left: none;
+    }
+    & > .block.missing {
+      background-color: #aaa;
+      flex-grow: 1;
+    }
+    & > .block.found {
+      background-color: #0f0;
+      flex-grow: 1;
+    }
   }
 }
+
+.progress-bar {
+  display: flex;
+  flex-direction: row;
+  height: 4px;
+  width: 100%;
+
+  & > div {
+    flex-grow: 1;
+  }
+
+  & > .progress-bar-track {
+    background: rgba(0, 0, 0, 0.26);
+  }
+}
+
 </style>
