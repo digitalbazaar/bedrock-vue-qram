@@ -7,7 +7,7 @@
     </div>
     <div
       v-else-if="done"
-      class="column message">
+      class="column message success">
       <div>Scan complete</div>
     </div>
     <div
@@ -18,9 +18,9 @@
         :key="n"
         class="block"
         :class="{missing: !blocks[n - 1], found: blocks[n - 1]}" />
-      <!-- <div class="block-overlay-text">
-        Scanning...
-      </div> -->
+      <div class="block-overlay-text">
+        <div>Scanning...</div>
+      </div>
     </div>
     <div class="progress-bar">
       <div
@@ -114,7 +114,7 @@ export default {
   display: flex;
   flex-direction: column;
   font-size: 16px;
-  color: #333;
+  color: #111;
   height: 32px;
 
   & .message {
@@ -123,15 +123,14 @@ export default {
   }
 
   & > .blocks {
+    position: relative;
     display: flex;
     flex-direction: row;
     flex-grow: 1;
     width: 100%;
-    font-size: 16px;
-    color: #333;
 
     & > div.block {
-      border: 1px solid #333;
+      //border: 1px solid #0b0;
       border-top: none;
       border-right: none;
     }
@@ -139,11 +138,15 @@ export default {
       border-left: none;
     }
     & > .block.missing {
-      background-color: #aaa;
+      background-color: #ddd;
+      border: 1px solid #ccc;
       flex-grow: 1;
     }
     & > .block.found {
       background-color: #0f0;
+      //background-color: #3498db;
+      border: 1px solid #0b0;
+      //border: 1px solid #2a86c3;
       flex-grow: 1;
     }
   }
@@ -165,7 +168,18 @@ export default {
 }
 
 .block-overlay-text {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
 
+.success {
+  background: #0d0;
 }
 
 </style>
