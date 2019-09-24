@@ -37,6 +37,7 @@
     </div>
     <br-qram-scan-progress
       v-show="showProgress"
+      :idle-message="idleMessage"
       :progress="progress" />
   </div>
 </template>
@@ -101,6 +102,15 @@ export default {
     croppedVideoStyle() {
       const {width, height} = this.croppedVideoDimensions;
       return {width: `${width}px`, height: `${height}px`};
+    },
+    idleMessage() {
+      if(this.loading) {
+        return 'Loading...';
+      }
+      if(this.scanning) {
+        return 'Place scanner over QR code...';
+      }
+      return 'Press "scan" to start scanning';
     },
     videoStyle() {
       // determine margin for shifting video so its center appears in
