@@ -3,7 +3,7 @@
     <div
       v-if="receivedPackets === 0"
       class="column message">
-      <div>Waiting to scan...</div>
+      <div>{{idleMessage}}</div>
     </div>
     <div
       v-else-if="done"
@@ -19,7 +19,7 @@
         class="block"
         :class="{missing: !blocks[n - 1], found: blocks[n - 1]}" />
       <div class="block-overlay-text">
-        <div>Scanning...</div>
+        <div>Scanning, please wait...</div>
       </div>
     </div>
     <div class="progress-bar">
@@ -45,6 +45,10 @@
 export default {
   name: 'BrQramScanProgress',
   props: {
+    idleMessage: {
+      type: String,
+      default: 'Waiting to scan...'
+    },
     progress: {
       type: Object,
       default: () => ({
@@ -115,11 +119,12 @@ export default {
   flex-direction: column;
   font-size: 16px;
   color: #111;
-  height: 32px;
+  height: 35px;
 
   & .message {
     width: 100%;
     align-items: center;
+    padding: 2px 0 1px 0;
   }
 
   & > .blocks {
@@ -176,6 +181,7 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  margin-top: 1px;
 }
 
 .success {
