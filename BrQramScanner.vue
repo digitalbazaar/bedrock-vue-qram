@@ -38,23 +38,27 @@
     <div
       v-show="showProgress"
       class="br-qram-progress">
-      <div class="blocks">
-        <div
-          v-if="receivedPackets === 0"
-          class="column message">
-          <div>Waiting to scan...</div>
-        </div>
-        <div
-          v-else-if="done"
-          class="column message">
-          <div>Scan complete</div>
-        </div>
+      <div
+        v-if="receivedPackets === 0"
+        class="column message">
+        <div>Waiting to scan...</div>
+      </div>
+      <div
+        v-else-if="done"
+        class="column message">
+        <div>Scan complete</div>
+      </div>
+      <div
+        v-else
+        class="blocks">
         <div
           v-for="n in totalBlocks"
-          v-else
           :key="n"
           class="block"
           :class="{missing: !blocks[n - 1], found: blocks[n - 1]}" />
+        <!-- <div class="block-overlay-text">
+          Scanning...
+        </div> -->
       </div>
       <div class="progress-bar">
         <div
@@ -354,23 +358,28 @@ export default {
   margin: 15px 5px 5px 5px;
   border: 2px solid #333;
   border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  color: #333;
+  height: 32px;
+
+  & .message {
+    width: 100%;
+    align-items: center;
+  }
 
   & > .blocks {
     display: flex;
     flex-direction: row;
-    min-height: 30px;
+    flex-grow: 1;
     width: 100%;
     font-size: 16px;
     color: #333;
 
-    & .message {
-      width: 100%;
-      align-items: center;
-      margin-top: 3px;
-    }
-
     & > div.block {
       border: 1px solid #333;
+      border-top: none;
       border-right: none;
     }
     & > div.block:first-child {
@@ -400,6 +409,10 @@ export default {
   & > .progress-bar-track {
     background: rgba(0, 0, 0, 0.26);
   }
+}
+
+.block-overlay-text {
+
 }
 
 </style>
