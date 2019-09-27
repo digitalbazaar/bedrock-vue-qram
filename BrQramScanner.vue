@@ -38,6 +38,7 @@
     <br-qram-scan-progress
       v-show="showProgress"
       :idle-message="idleMessage"
+      :scanning="scanning"
       :progress="progress" />
   </div>
 </template>
@@ -106,9 +107,6 @@ export default {
     idleMessage() {
       if(this.loading) {
         return 'Loading...';
-      }
-      if(this.scanning) {
-        return 'Place scanner over QR code...';
       }
       return 'Press "scan" to start scanning';
     },

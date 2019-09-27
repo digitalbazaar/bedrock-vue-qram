@@ -1,14 +1,19 @@
 <template>
   <div class="br-qram-progress">
     <div
-      v-if="receivedPackets === 0"
+      v-if="done"
+      class="column message success">
+      <div>Scan complete</div>
+    </div>
+    <div
+      v-else-if="!scanning"
       class="column message">
       <div>{{idleMessage}}</div>
     </div>
     <div
-      v-else-if="done"
-      class="column message success">
-      <div>Scan complete</div>
+      v-else-if="receivedPackets === 0"
+      class="column message">
+      Place scanner over QR code...
     </div>
     <div
       v-else
@@ -19,7 +24,7 @@
         class="block"
         :class="{missing: !blocks[n - 1], found: blocks[n - 1]}" />
       <div class="block-overlay-text">
-        <div>Scanning, please wait...</div>
+        <div>{{scanningMessage}}</div>
       </div>
     </div>
     <div class="progress-bar">
@@ -42,9 +47,21 @@
   */
 'use strict';
 
+const SCAN_TIMEOUT = 1000;
+
 export default {
   name: 'BrQramScanProgress',
   props: {
+    loading: {
+      type: Boolean,
+      default: false,
+      required: true
+    },
+    scanning: {
+      type: Boolean,
+      default: false,
+      required: true
+    },
     idleMessage: {
       type: String,
       default: 'Waiting to scan...'
@@ -59,6 +76,11 @@ export default {
       }),
       required: true
     }
+  },
+  data() {
+    return {
+      timedOut: false
+    };
   },
   computed: {
     blocks() {
@@ -104,6 +126,25 @@ export default {
     done() {
       const {receivedPackets, totalBlocks, receivedBlocks} = this;
       return (receivedPackets > 0 && totalBlocks === receivedBlocks);
+    },
+    scanningMessage() {
+      if(this.timedOut) {
+        return 'Place scanner over QR code...';
+      }
+      return 'Scanning, please wait...';
+    }
+  },
+  watch: {
+    scanning() {
+      // clear timed out flag when scanning is toggled
+      this.timedOut = false;
+    },
+    receivedPackets() {
+      this.timedOut = false;
+      if(this._timeoutId) {
+        clearTimeout(this._timeoutId);
+      }
+      this._timeoutId = setTimeout(() => this.timedOut = true, SCAN_TIMEOUT);
     }
   }
 };
