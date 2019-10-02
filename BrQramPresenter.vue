@@ -76,15 +76,21 @@ export default {
   watch: {
     active(isActive) {
       if(isActive) {
-        // track present count to prevent two different presentations from
-        // overwriting each other
-        this.presentCount++;
         this.present();
       }
     }
   },
+  mounted() {
+    if(this.active) {
+      this.present();
+    }
+  },
   methods: {
     async present() {
+      // track present count to prevent two different presentations from
+      // overwriting each other
+      this.presentCount++;
+
       if(this.timer) {
         // wait for current timer to expire before presenting again
         await this.timer.nextFrame();
@@ -149,8 +155,4 @@ function getBestVersion({blockSize, resistance}) {
 </script>
 
 <style lang="scss" scoped>
-
-.br-qram-presenter {
-}
-
 </style>
