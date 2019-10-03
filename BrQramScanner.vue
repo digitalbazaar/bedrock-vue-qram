@@ -8,9 +8,10 @@
       <div class="br-qram-cr br-qram-cr-top br-qram-cr-right" />
       <div class="br-qram-cr br-qram-cr-bottom br-qram-cr-left" />
       <div class="br-qram-cr br-qram-cr-bottom br-qram-cr-right" />
-      <div class="br-qram-cropped-video">
+      <div
+        v-show="enableCamera"
+        class="br-qram-cropped-video">
         <video
-          v-show="enableCamera"
           ref="video"
           class="br-qram-video"
           :style="videoStyle"
@@ -22,17 +23,26 @@
       </div>
       <q-inner-loading
         :showing="loading"
-        style="background-color: transparent">
+        style="background-color: transparent; font-size: 16px">
         <p>Requesting access to your camera...</p>
         <q-spinner
           size="50px"
           color="primary" />
       </q-inner-loading>
-      <div v-if="cameraError">
-        Camera Disabled: {{cameraError}}
-      </div>
-      <div v-if="!loading && !enableCamera">
-        Click to Enable Camera
+      <q-banner
+        v-if="!loading && cameraError"
+        rounded
+        class="bg-warning full-width">
+        <template v-slot:avatar>
+          <q-icon name="fas fa-exclamation-triangle" />
+        </template>
+        <div><strong>Camera disabled</strong></div>
+        <div>{{cameraError}}</div>
+      </q-banner>
+      <div
+        v-if="!loading && !enableCamera"
+        class="br-qram-camera-message">
+        <div>Click to enable camera</div>
       </div>
     </div>
     <br-qram-scan-progress
@@ -273,7 +283,6 @@ export default {
   padding: 10px;
   width: 100%;
   align-items: center;
-  justify-content: center;
   align-self: center;
 }
 
@@ -306,6 +315,16 @@ export default {
 .br-qram-cropped-video {
   overflow: hidden;
   width: 100%;
+}
+
+.br-qram-camera-message {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  font-size: 16px;
+  height: 100%;
 }
 
 </style>
