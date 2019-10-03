@@ -37,6 +37,7 @@
     </div>
     <br-qram-scan-progress
       v-show="showProgress"
+      :style="{width: croppedVideoStyle.width}"
       :idle-message="idleMessage"
       :scanning="scanning"
       :progress="progress" />
@@ -56,11 +57,6 @@ export default {
   name: 'BrQramScanner',
   components: {BrQramScanProgress},
   props: {
-    source: {
-      type: Object,
-      default: null,
-      required: true
-    },
     maxVideoWidth: {
       type: Number,
       default: 400
@@ -228,6 +224,7 @@ export default {
       const msg = `Decoded ${size} KiB in time ${time} seconds`;
       console.log(msg);
       this.scanning = false;
+      this.$emit('result', {result});
     },
     updateProgress(event) {
       console.log('progress', event);
@@ -244,11 +241,13 @@ export default {
         progress.blocks[key] = true;
       }
       this.progress = progress;
+      this.$emit('progress', event);
     },
     cancel() {
       this.scanning = false;
       this.resetProgress();
       this.scanner.cancel();
+      this.$emit('cancel');
     },
     resetProgress() {
       this.progress = {
@@ -266,6 +265,7 @@ export default {
 
 .br-qram-scanner {
   padding: 10px;
+  align-items: center;
 }
 
 .br-qram-video-wrapper {
