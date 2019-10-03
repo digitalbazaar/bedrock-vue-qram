@@ -41,7 +41,13 @@ export class QramScanner {
 
     const enqueue = async () => {
       // try to detect QR code
-      const [detectedCode] = await detector.detect(source);
+      let detectedCode = null;
+      try {
+        ([detectedCode] = await detector.detect(source));
+      } catch(e) {
+        // error during scan, log it but do not throw, treat as no code found
+        console.error(e);
+      }
 
       if(currentScan !== this.scans) {
         // current scan canceled during detection, abort

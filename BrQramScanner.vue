@@ -19,6 +19,7 @@
           muted
           playsinline
           @loadedmetadata="videoReady"
+          @suspend="videoSuspended"
           @error="videoError" />
       </div>
       <q-inner-loading
@@ -158,6 +159,15 @@ export default {
       this.videoHeight = video.videoHeight;
       this.enableCamera = true;
       this.loading = false;
+    },
+    async videoSuspended() {
+      if(this.enableCamera) {
+        this.cameraErrorTitle = 'Camera disconnected';
+        this.cameraError = 'Reconnect to try again';
+
+        // disable camera
+        this.toggleCamera();
+      }
     },
     async videoError(event) {
       // get error message
