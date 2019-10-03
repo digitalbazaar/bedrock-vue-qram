@@ -36,7 +36,7 @@
         <template v-slot:avatar>
           <q-icon name="fas fa-exclamation-triangle" />
         </template>
-        <div><strong>Camera disabled</strong></div>
+        <div><strong>{{cameraErrorTitle}}</strong></div>
         <div>{{cameraError}}</div>
       </q-banner>
       <div
@@ -79,6 +79,7 @@ export default {
   data() {
     return {
       cameraError: null,
+      cameraErrorTitle: 'Camera disabled',
       enableCamera: false,
       loading: true,
       progress: {
@@ -169,6 +170,11 @@ export default {
       if(event.originalTarget) {
         error = error.originalTarget.error;
       }
+      if(error.name === 'NotFoundError') {
+        this.cameraErrorTitle = 'Camera not found';
+      } else {
+        this.cameraErrorTitle = 'Camera error';
+      }
       this.cameraError = error.message;
 
       if(this.enableCamera) {
@@ -199,7 +205,13 @@ export default {
         // camera will be enabled when `loadedmetadata` event is emitted
         // by `video` element
       } catch(e) {
-        this.cameraError = e.message;
+        if(e.name === 'NotFoundError') {
+          this.cameraErrorTitle = 'Camera not found';
+          this.cameraError = 'Add a camera to try again';
+        } else {
+          this.cameraErrorTitle = 'Camera error';
+          this.cameraError = e.message;
+        }
         this.enableCamera = false;
         this.loading = false;
       }
@@ -319,12 +331,15 @@ export default {
 
 .br-qram-camera-message {
   position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
   font-size: 16px;
-  height: 100%;
 }
 
 </style>
