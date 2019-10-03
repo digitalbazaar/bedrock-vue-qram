@@ -85,6 +85,9 @@ export default {
       this.present();
     }
   },
+  beforeDestroy() {
+    this.active = false;
+  },
   methods: {
     async present() {
       // track present count to prevent two different presentations from

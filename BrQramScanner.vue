@@ -136,6 +136,14 @@ export default {
   async mounted() {
     await this.toggleCamera();
   },
+  beforeDestroy() {
+    if(this.enableCamera) {
+      this.toggleCamera();
+    }
+    if(this.scanning) {
+      this.cancel();
+    }
+  },
   methods: {
     videoReady() {
       const {video} = this.$refs;
